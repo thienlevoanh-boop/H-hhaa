@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Ngoc🍀 - Ứng dụng Quản lý Cá nhân</title>
+    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=180&h=180&fit=crop">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ngoc🍀">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .ios-glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-800 antialiased select-none h-screen flex flex-col overflow-hidden">
+    <div id="app" class="flex-1 flex flex-col h-full relative max-w-md mx-auto w-full bg-slate-50 overflow-hidden shadow-2xl">
+        <!-- Main Content Area -->
+        <div id="main-content" class="flex-1 overflow-y-auto hide-scrollbar pb-24">
+            <!-- Header -->
+            <header class="px-5 pt-12 pb-4 flex items-center justify-between sticky top-0 z-30 ios-glass border-b border-slate-200/50">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-emerald-600 uppercase bg-emerald-50 px-2.5 py-1 rounded-full">NGOC🍀 • PRIVAT</span>
+                    <h1 id="app-title" class="text-2xl font-bold text-slate-900 mt-1">Wochenplan & Geburtstage</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleLock()" class="p-2.5 rounded-full bg-white shadow-sm border border-slate-100 text-slate-600 active:scale-95 transition">
+                        <i data-lucide="lock" class="w-4 h-4 text-emerald-600"></i>
+                    </button>
+                    <button onclick="toggleLang()" class="px-3 py-1.5 rounded-full bg-white shadow-sm border border-slate-100 text-xs font-bold text-slate-700 flex items-center gap-1">
+                        <span id="current-lang-flag">🇩🇪</span> <span id="current-lang-text">DE</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Weather & Season Auto Banner -->
+            <div class="mx-4 mt-4 p-4 rounded-3xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg relative overflow-hidden">
+                <div class="absolute right-[-10px] bottom-[-10px] opacity-20 text-7xl">🌸</div>
+                <div class="flex items-center justify-between relative z-10">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="weather-temp" class="text-2xl font-bold">20°C</span>
+                            <span id="season-name" class="text-sm font-medium bg-white/20 px-2.5 py-0.5 rounded-full">Mùa Thu (Lá vàng rơi)</span>
+                        </div>
+                        <p id="location-auto" class="text-xs text-emerald-100 mt-1 flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i> Auto Season (DE/VN)
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-1 bg-white/10 p-1 rounded-xl backdrop-blur-md">
+                        <span class="text-xs px-2 py-1 bg-white text-emerald-700 font-bold rounded-lg shadow">Auto</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 1: Wochenplan & Geburtstage -->
+            <div id="tab-woche" class="p-4 space-y-4">
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span id="today-stats-label" class="text-xs text-slate-400 font-medium">Hoàn thành hôm nay</span>
+                        <h2 id="today-stats-val" class="text-2xl font-bold text-slate-900">1 / 3</h2>
+                    </div>
+                    <button onclick="openAddTaskModal()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-2xl text-sm font-semibold shadow-md shadow-emerald-600/20 active:scale-95 transition flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4"></i> <span id="btn-add-task">Thêm việc / Lịch hẹn</span>
+                    </button>
+                </div>
+
+                <!-- Sinh nhật tháng này 🎂 -->
+                <div class="bg-gradient-to-br from-pink-50 to-rose-50 border border-pink-100 p-4 rounded-3xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">🎂</span>
+                            <h3 id="birthday-month-title" class="font-bold text-pink-900 text-sm">Sinh nhật tháng này (Tháng 11)</h3>
+                        </div>
+                        <span class="text-xs bg-pink-200/60 text-pink-700 font-semibold px-2 py-0.5 rounded-full">2 người</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="bg-white/80 backdrop-blur-sm p-3 rounded-2xl flex items-center justify-between border border-pink-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold text-sm">LA</div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800">Lan Anh (Bạn thân)</h4>
+                                    <p class="text-xs text-slate-500">🎂 20 tháng 11 • Còn 4 ngày</p>
+                                </div>
+                            </div>
+                            <button onclick="alert('Đã gửi lời nhắc chúc mừng sinh nhật Lan Anh! 💖')" class="text-xs bg-pink-600 text-white px-3 py-1.5 rounded-xl font-medium shadow-sm">Chúc mừng</button>
+                        </div>
+                        <div class="bg-white/80 backdrop-blur-sm p-3 rounded-2xl flex items-center justify-between border border-pink-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold text-sm">MH</div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800">Minh Hoàng (Đồng nghiệp)</h4>
+                                    <p class="text-xs text-slate-500">🎂 28 tháng 11 • Còn 12 ngày</p>
+                                </div>
+                            </div>
+                            <button onclick="alert('Đã gửi lời nhắc chúc mừng sinh nhật Minh Hoàng! 🎂')" class="text-xs bg-pink-600 text-white px-3 py-1.5 rounded-xl font-medium shadow-sm">Chúc mừng</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách công việc tuần -->
+                <div id="task-list" class="space-y-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <button onclick="toggleTask(this)" class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-white transition"></button>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">🎂 Sinh nhật Lan Anh (Bạn thân)</h4>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-pink-50 text-pink-600 font-semibold px-2 py-0.5 rounded-md">Geburtstag</span>
+                                    <span class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> 08:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-slate-300 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between opacity-75">
+                        <div class="flex items-center gap-3">
+                            <button onclick="toggleTask(this)" class="w-6 h-6 rounded-full bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center text-white transition"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-400 line-through">Hoàn thành báo cáo y khoa tuần</h4>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-emerald-50 text-emerald-600 font-semibold px-2 py-0.5 rounded-md">Arbeit</span>
+                                    <span class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> 10:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-slate-300 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <button onclick="toggleTask(this)" class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-white transition"></button>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">Học từ vựng Y khoa B2-C1</h4>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] bg-purple-50 text-purple-600 font-semibold px-2 py-0.5 rounded-md">Lernen</span>
+                                    <span class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> 15:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-slate-300 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Mondkalender (Lịch âm & Ăn chay) -->
+            <div id="tab-mondkalender" class="p-4 space-y-4 hidden">
+                <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-3xl text-white shadow-md">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full font-bold">Mondkalender • Lịch Âm</span>
+                            <h2 class="text-2xl font-bold mt-2">Hôm nay: 29 Âm Lịch</h2>
+                            <p class="text-xs text-amber-100 mt-1">Sắp tới ngày Sóc (Mùng 1 Âm Lịch)</p>
+                        </div>
+                        <div class="text-4xl">🌙</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">🌱</div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">Nhắc nhở Ăn Chay</h4>
+                                <p class="text-xs text-slate-500">Tự động báo lúc 17:00 chiều hôm trước</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full">Đang bật</span>
+                    </div>
+                    <div class="text-xs text-slate-600 space-y-2 bg-slate-50 p-3 rounded-2xl">
+                        <p class="font-semibold text-slate-700">📌 Lịch chay tháng này:</p>
+                        <p>• Ngày 14 & 15 Âm lịch (Rằm)</p>
+                        <p>• Ngày 30 & Mùng 1 Âm lịch</p>
+                        <p class="text-emerald-600 italic font-medium">💡 Hệ thống sẽ tự động gửi thông báo nhắc nhở vào lúc 17:00 trước ngày chay.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Ziele (Mục tiêu) -->
+            <div id="tab-ziele" class="p-4 space-y-4 hidden">
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-900 mb-1">Mục tiêu năm 2026</h2>
+                    <p class="text-xs text-slate-500 mb-4">Hoàn thành các cột mốc quan trọng của bạn</p>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700">Chứng chỉ C1 Fachsprachenprüfung</span>
+                                <span class="text-emerald-600">75%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span class="text-slate-700">Khám phá 10 quốc gia châu Âu</span>
+                                <span class="text-emerald-600">60%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Vokabeln (Từ vựng B1-C1 Y khoa & Đời sống) -->
+            <div id="tab-vokabeln" class="p-4 space-y-4 hidden">
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-5 rounded-3xl text-white shadow-md">
+                    <span class="text-xs uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full font-bold">Medizin & Alltag</span>
+                    <h2 class="text-xl font-bold mt-2">Từ vựng B1-C1 Chuyên ngành Y khoa</h2>
+                    <p class="text-xs text-indigo-100 mt-1">Synonym, Antonym & Redewendungen chuẩn Đức</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-purple-50 text-purple-700 font-bold px-2.5 py-1 rounded-full">Medizin (Y khoa)</span>
+                        <span class="text-xs text-slate-400">Thẻ 1 / 25</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900">die Hypertonie</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Substantiv (die) • Cao huyết áp</p>
+                    </div>
+                    <div class="bg-slate-50 p-3.5 rounded-2xl space-y-2 text-xs">
+                        <p><strong class="text-purple-700">Synonym:</strong> der Bluthochdruck</p>
+                        <p><strong class="text-rose-600">Antonym:</strong> die Hypotonie (Tụt huyết áp)</p>
+                        <p class="italic text-slate-600">"Ein unbehandelter Bluthochdruck kann zu schweren Herzschäden führen."</p>
+                    </div>
+                    <button onclick="alert('Đã lưu vào danh sách từ vựng cần ôn tập! 📚')" class="w-full py-2.5 rounded-xl bg-purple-600 text-white text-xs font-bold shadow-md shadow-purple-600/20 active:scale-95 transition">Đã thuộc từ này ✓</button>
+                </div>
+            </div>
+
+            <!-- Tab 5: Gesundheit (Sức khỏe & Chu kỳ) -->
+            <div id="tab-gesundheit" class="p-4 space-y-4 hidden">
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-400 font-medium">Apple Fitness • Bước chân</span>
+                        <h2 class="text-2xl font-bold text-slate-900">8,432 <span class="text-xs font-normal text-slate-500">/ 10,000 bước</span></h2>
+                    </div>
+                    <div class="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg shadow-inner">84%</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-rose-500 to-pink-600 p-5 rounded-3xl text-white shadow-md space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full font-bold">Zykluskalender</span>
+                            <h2 class="text-lg font-bold mt-2">Theo dõi chu kỳ kinh nguyệt</h2>
+                        </div>
+                        <span class="text-3xl">🌸</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md p-3 rounded-2xl text-xs space-y-1">
+                        <p>• Chu kỳ hiện tại: Ngày thứ 14 (Ổn định)</p>
+                        <p>• Dự kiến kỳ tiếp theo: Còn 14 ngày nữa</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 6: Reisen (Bản đồ du lịch thế giới) -->
+            <div id="tab-reisen" class="p-4 space-y-4 hidden">
+                <div class="bg-gradient-to-br from-cyan-600 to-blue-700 p-5 rounded-3xl text-white shadow-md">
+                    <span class="text-xs uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full font-bold">Weltkarte • Khám phá Thế giới</span>
+                    <h2 class="text-xl font-bold mt-2">Bản đồ Du lịch Cầm cờ</h2>
+                    <p class="text-xs text-cyan-100 mt-1">Đã khám phá: <span id="visited-count" class="font-bold underline">4</span> quốc gia (2.0% thế giới)</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-3">
+                    <div class="flex gap-2">
+                        <input id="country-input" type="text" placeholder="Nhập tên quốc gia (VD: Nhật Bản, Ý...)" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-cyan-600">
+                        <button onclick="addCountry()" class="bg-cyan-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-cyan-600/20 active:scale-95 transition">Thêm</button>
+                    </div>
+
+                    <div id="country-grid" class="grid grid-cols-2 gap-2 pt-2">
+                        <div class="p-3 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🇩🇪</span>
+                                <span class="text-xs font-bold text-slate-800">Đức</span>
+                            </div>
+                            <span class="text-[10px] bg-cyan-600 text-white px-2 py-0.5 rounded-full font-semibold">Đã đi</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🇻🇳</span>
+                                <span class="text-xs font-bold text-slate-800">Việt Nam</span>
+                            </div>
+                            <span class="text-[10px] bg-cyan-600 text-white px-2 py-0.5 rounded-full font-semibold">Đã đi</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🇫🇷</span>
+                                <span class="text-xs font-bold text-slate-800">Pháp</span>
+                            </div>
+                            <span class="text-[10px] bg-cyan-600 text-white px-2 py-0.5 rounded-full font-semibold">Đã đi</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🇨🇭</span>
+                                <span class="text-xs font-bold text-slate-800">Thụy Sĩ</span>
+                            </div>
+                            <span class="text-[10px] bg-cyan-600 text-white px-2 py-0.5 rounded-full font-semibold">Đã đi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chibi Bé Ngọc Đeo Kính Râm Bản To 🍀 -->
+            <div class="fixed bottom-20 right-4 z-40 flex items-end gap-2 pointer-events-none animate-float">
+                <div class="bg-white/90 backdrop-blur-md px-3 py-2 rounded-2xl shadow-lg border border-slate-100 max-w-[200px] pointer-events-auto">
+                    <p id="chibi-dialog" class="text-[11px] font-semibold text-slate-800">Chào Ngoc🍀! Hôm nay thật tuyệt vời!</p>
+                </div>
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-xl border-2 border-white flex items-center justify-center pointer-events-auto overflow-hidden relative" onclick="tapChibi()">
+                    <svg viewBox="0 0 100 100" class="w-14 h-14">
+                        <circle cx="50" cy="50" r="48" fill="#ffe4e6"/>
+                        <path d="M20 50 Q20 20 50 20 Q80 20 80 50 Q80 80 65 90 Q50 95 35 90 Q20 80 20 50" fill="#332211"/>
+                        <circle cx="50" cy="55" r="24" fill="#ffdbac"/>
+                        <rect x="30" y="42" width="40" height="22" rx="6" fill="#111111"/>
+                        <path d="M42 52 L58 52" stroke="#444" stroke-width="2"/>
+                        <path d="M47 70 Q50 74 53 70" stroke="#b91c1c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        <circle cx="72" cy="30" r="4" fill="#10b981"/>
+                        <circle cx="80" cy="35" r="4" fill="#10b981"/>
+                        <circle cx="72" cy="40" r="4" fill="#10b981"/>
+                        <circle cx="64" cy="35" r="4" fill="#10b981"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="absolute bottom-0 left-0 right-0 ios-glass border-t border-slate-200/50 px-2 py-2 flex justify-around items-center z-50">
+            <button onclick="switchTab('woche')" id="nav-woche" class="flex flex-col items-center gap-1 text-emerald-600">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold">Woche</span>
+            </button>
+            <button onclick="switchTab('mondkalender')" id="nav-mondkalender" class="flex flex-col items-center gap-1 text-slate-400">
+                <i data-lucide="moon" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">Mondkal.</span>
+            </button>
+            <button onclick="switchTab('ziele')" id="nav-ziele" class="flex flex-col items-center gap-1 text-slate-400">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">Ziele</span>
+            </button>
+            <button onclick="switchTab('vokabeln')" id="nav-vokabeln" class="flex flex-col items-center gap-1 text-slate-400">
+                <i data-lucide="book-open" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">Vokabeln</span>
+            </button>
+            <button onclick="switchTab('gesundheit')" id="nav-gesundheit" class="flex flex-col items-center gap-1 text-slate-400">
+                <i data-lucide="heart" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">Gesundheit</span>
+            </button>
+            <button onclick="switchTab('reisen')" id="nav-reisen" class="flex flex-col items-center gap-1 text-slate-400">
+                <i data-lucide="globe" class="w-5 h-5"></i>
+                <span class="text-[10px] font-medium">Reisen</span>
+            </button>
+        </nav>
+
+        <!-- Lock Screen Modal -->
+        <div id="lock-screen" class="absolute inset-0 bg-slate-900/90 backdrop-blur-xl z-50 flex flex-col items-center justify-center p-6 text-white hidden">
+            <div class="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl mb-4">🍀</div>
+            <h2 class="text-xl font-bold mb-1">Ngoc🍀 Gesperrt</h2>
+            <p class="text-xs text-slate-400 mb-6">Nhập mã PIN hoặc dùng Face ID</p>
+            <div class="flex gap-3 mb-6" id="pin-dots">
+                <div class="w-3.5 h-3.5 rounded-full bg-slate-700"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-slate-700"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-slate-700"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-slate-700"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 max-w-xs w-full">
+                <button onclick="pressPin('1')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">1</button>
+                <button onclick="pressPin('2')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">2</button>
+                <button onclick="pressPin('3')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">3</button>
+                <button onclick="pressPin('4')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">4</button>
+                <button onclick="pressPin('5')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">5</button>
+                <button onclick="pressPin('6')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">6</button>
+                <button onclick="pressPin('7')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">7</button>
+                <button onclick="pressPin('8')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">8</button>
+                <button onclick="pressPin('9')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">9</button>
+                <div></div>
+                <button onclick="pressPin('0')" class="h-14 rounded-2xl bg-white/10 font-bold text-lg active:bg-white/20">0</button>
+                <button onclick="unlockApp()" class="h-14 rounded-2xl bg-emerald-600 font-bold text-xs flex items-center justify-center">FaceID</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = 'DE';
+        let pin = '';
+        const correctPin = '1234';
+
+        function toggleLang() {
+            currentLang = currentLang === 'DE' ? 'VI' : 'DE';
+            document.getElementById('current-lang-flag').innerText = currentLang === 'DE' ? '🇩🇪' : '🇻🇳';
+            document.getElementById('current-lang-text').innerText = currentLang;
+            
+            const dialog = document.getElementById('chibi-dialog');
+            if(currentLang === 'DE') {
+                document.getElementById('app-title').innerText = "Wochenplan & Geburtstage";
+                document.getElementById('btn-add-task').innerText = "Termin hinzufügen";
+                dialog.innerText = "Hallo Ngoc🍀! Das Wetter ist heute wunderschön!";
+            } else {
+                document.getElementById('app-title').innerText = "Lịch tuần & Sinh nhật";
+                document.getElementById('btn-add-task').innerText = "Thêm việc / Lịch hẹn";
+                dialog.innerText = "Chào Ngoc🍀! Hôm nay thật tuyệt vời!";
+            }
+        }
+
+        function switchTab(tabName) {
+            ['woche', 'mondkalender', 'ziele', 'vokabeln', 'gesundheit', 'reisen'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('nav-' + t).className = "flex flex-col items-center gap-1 text-slate-400";
+            });
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            document.getElementById('nav-' + tabName).className = "flex flex-col items-center gap-1 text-emerald-600";
+            lucide.createIcons();
+        }
+
+        function toggleTask(btn) {
+            const isChecked = btn.classList.toggle('bg-emerald-500');
+            btn.classList.toggle('border-emerald-500');
+            const title = btn.nextElementSibling.querySelector('h4');
+            title.classList.toggle('line-through');
+            title.classList.toggle('text-slate-400');
+            if(isChecked) {
+                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            } else {
+                btn.innerHTML = '';
+            }
+        }
+
+        function addCountry() {
+            const input = document.getElementById('country-input');
+            if(!input.value.trim()) return;
+            const grid = document.getElementById('country-grid');
+            const div = document.createElement('div');
+            div.className = "p-3 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-between";
+            div.innerHTML = `<div class="flex items-center gap-2"><span class="text-lg">🚩</span><span class="text-xs font-bold text-slate-800">${input.value}</span></div><span class="text-[10px] bg-cyan-600 text-white px-2 py-0.5 rounded-full font-semibold">Đã đi</span>`;
+            grid.appendChild(div);
+            input.value = '';
+        }
+
+        function toggleLock() {
+            document.getElementById('lock-screen').classList.remove('hidden');
+            pin = '';
+        }
+
+        function pressPin(num) {
+            pin += num;
+            if(pin.length === 4) {
+                if(pin === correctPin) {
+                    unlockApp();
+                } else {
+                    alert('Mã PIN không đúng!');
+                    pin = '';
+                }
+            }
+        }
+
+        function unlockApp() {
+            document.getElementById('lock-screen').classList.add('hidden');
+            pin = '';
+        }
+
+        function openAddTaskModal() {
+            const name = prompt(currentLang === 'DE' ? 'Neuen Termin eingeben:' : 'Nhập tên công việc hoặc sinh nhật mới:');
+            if(name) {
+                const list = document.getElementById('task-list');
+                const item = document.createElement('div');
+                item.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between";
+                item.innerHTML = `<div class="flex items-center gap-3"><button onclick="toggleTask(this)" class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-white transition"></button><div><h4 class="text-sm font-bold text-slate-800">${name}</h4><div class="flex items-center gap-2 mt-1"><span class="text-[10px] bg-emerald-50 text-emerald-600 font-semibold px-2 py-0.5 rounded-md">Task</span><span class="text-[10px] text-slate-400 flex items-center gap-1">Hôm nay</span></div></div></div><button onclick="this.parentElement.remove()" class="text-slate-300 hover:text-rose-500"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></button>`;
+                list.appendChild(item);
+            }
+        }
+
+        function tapChibi() {
+            const dialoguesDE = [
+                "Du schaffst das heute! 🍀",
+                "Vergiss nicht, Wasser zu trinken! 💧",
+                "Ich bin stolz auf dich! ✨",
+                "Zeit für eine kleine Pause? ☕"
+            ];
+            const dialoguesVI = [
+                "Cố lên bạn nhé! 🍀",
+                "Nhớ uống đủ nước nha! 💧",
+                "Tự hào về bạn lắm! ✨",
+                "Nghỉ ngơi một chút thôi nào! ☕"
+            ];
+            const arr = currentLang === 'DE' ? dialoguesDE : dialoguesVI;
+            const randomMsg = arr[Math.floor(Math.random() * arr.length)];
+            document.getElementById('chibi-dialog').innerText = randomMsg;
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
